@@ -1,6 +1,8 @@
 # coding: utf-8
 #!/usr/bin/env python3
 
+Copyright 2018 Ward Hills and Albion Innovations UK Ltd
+
 import time
 from pprint import pprint
 
