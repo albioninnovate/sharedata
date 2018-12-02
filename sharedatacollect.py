@@ -37,7 +37,8 @@ The structure of the project is:
 """
 
 # Alpha Vantage;  https://www.alphavantage.co/support/#api-key
-Alphavantage_API_key = 'YOUR_API_KEY'
+# Alphavantage_API_key = 'YOUR_API_KEY'
+Alphavantage_API_key = '21GBFSMHLICNID9Y'
 
 # The existing data to which the retrieved data is added.  This is the main output file
 datafile = 'share_data.csv'  # where the existing data is kept
@@ -46,14 +47,16 @@ datafile = 'share_data.csv'  # where the existing data is kept
 datafile_col = ['symbol', 'high', 'low', 'open', 'close', 'volume', 'div', 'eps', 'pe', 'yld']
 
 # where Share Symbol, eps and div data is kept. Updated for each share after the company reports. (ca once per quarter)
+# earningsfile = 'berkshire.csv'
 earningsfile = 'epsdiv.csv'
 
 # time (s) to wait between API calls a multiple of this is use on error to allow time for server to reset
-pause_call = 21
+pause_call = 15
 
 
 # # Define functions
 def getnewdata(symbol, days=1, apikey=Alphavantage_API_key):
+    print('making call :' , symbol)
     ts = TimeSeries(key=apikey, output_format='pandas')
     df, meta_df = ts.get_daily(symbol=symbol, outputsize='compact')
     # df, meta_df = ts.get_batch_stock_quotes(symbols=shrsymbol)  # only works with US stocks
@@ -125,8 +128,7 @@ if __name__ == '__main__':
             # put the columns in a particular order
             d = d[datafile_col]
 
-            # round certain values to given precision
-            d = d.round({'high': 2, 'low': 2, 'open': 2, 'close': 2, 'pe': 2, 'yld': 4})
+
 
             pprint(d)  # take a look at the data
             print('')
@@ -143,19 +145,23 @@ if __name__ == '__main__':
 
         except Exception as E:
             cnt_dwn = pause_call * 3  # Pause the API calls if the rate was too high and tossed an error
-            print('An error', E,' was encountered while retrieving data ', s)
+            print('An error', E, ' was encountered while retrieving data ', s)
             print('retrieval will pause for ', cnt_dwn, 'seconds')
             while cnt_dwn > 0:
                 print(cnt_dwn)
                 time.sleep(1)
                 cnt_dwn = cnt_dwn - 1
 
-    data_existing.drop_duplicates(['symbol','high','low','open','close','volume'],
+    data_existing.drop_duplicates(['symbol', 'high', 'low', 'open', 'close', 'volume'],
                                   keep='last',
                                   inplace=True)  # remove duplicate values, keeping the later. This allows earnings data
+
+    # round certain values to given precision
+    d = d.round({'high': 2, 'low': 2, 'open': 2, 'close': 2, 'pe': 2, 'yld': 4})
+
     # to be updated in later runs
     print('data_existing after drop duplicates')
-    #print(data_existing.tail(len(symbols)))
+    # print(data_existing.tail(len(symbols)))
     pprint(data_existing)
     print('')
 
